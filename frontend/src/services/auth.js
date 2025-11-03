@@ -2,24 +2,24 @@ import axios from 'axios';
 
 // Get API URL from environment variable or use defaults
 const getApiUrl = () => {
-  // If VITE_API_URL is explicitly set (even if empty string), use it
-  if (import.meta.env.VITE_API_URL !== undefined) {
-    return import.meta.env.VITE_API_URL || '/api';
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  // Explicitly check if environment variable exists and is not empty
+  if (envUrl && envUrl.trim() !== '') {
+    return envUrl.trim();
   }
-  // Development: use localhost
-  if (import.meta.env.DEV) {
+  
+  // In development mode, use localhost
+  if (import.meta.env.MODE === 'development' || import.meta.env.DEV) {
     return 'http://localhost:5000/api';
   }
-  // Production fallback: use relative path (won't work without backend on same domain)
+  
+  // Production: if no env var set, use relative path
+  console.warn('⚠️ VITE_API_URL not set! API calls will fail. Set VITE_API_URL in Vercel environment variables.');
   return '/api';
 };
 
 const API_URL = getApiUrl();
-
-// Log API URL in development for debugging
-if (import.meta.env.DEV) {
-  console.log('🔗 API URL:', API_URL);
-}
 
 export const login = async (username, password) => {
   try {
